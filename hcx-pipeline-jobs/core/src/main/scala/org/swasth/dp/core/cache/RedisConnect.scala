@@ -32,7 +32,7 @@ class RedisConnect(redisHost: String, redisPort: Int, jobConfig: BaseJobConfig) 
   }
 
   def getConnection(db: Int): Jedis = {
-    val jedis = getConnection(db, backoffTimeInMillis = 0)
+    val jedis = getConnection(db,backoffTimeInMillis = 0)
     jedis.select(db)
     jedis
   }

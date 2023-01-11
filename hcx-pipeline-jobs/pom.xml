@@ -31,6 +31,7 @@
         <module>retry-job</module>
         <module>notification-job</module>
         <module>notification-trigger-job</module>
+        <module>corejava</module>
     </modules>
     <properties>
         <!-- maven specific properties -->

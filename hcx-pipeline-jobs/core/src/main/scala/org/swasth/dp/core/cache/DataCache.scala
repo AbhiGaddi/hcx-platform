@@ -1,13 +1,12 @@
 package org.swasth.dp.core.cache
 
-import java.util
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.BaseJobConfig
-import org.swasth.dp.core.util.Constants
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.exceptions.{JedisConnectionException, JedisException}
 
+import java.util
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.Map
@@ -157,23 +156,6 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
 
   def set(key: String, value: String): Unit = {
     redisConnection.setex(key, config.redisExpires, value)
-  }
-
-  def sMembers(key: String): util.Set[String] = {
-    redisConnection.smembers(key)
-  }
-  def getKeyMembers(key: String): util.Set[String] = {
-    try {
-      sMembers(key)
-    } catch {
-      // $COVERAGE-OFF$ Disabling scoverage
-      case ex: JedisException =>
-        logger.error("Exception when retrieving data from redis cache", ex)
-        this.redisConnection.close()
-        this.redisConnection = redisConnect.getConnection(dbIndex)
-        sMembers(key)
-      // $COVERAGE-ON$
-    }
   }
 
 }

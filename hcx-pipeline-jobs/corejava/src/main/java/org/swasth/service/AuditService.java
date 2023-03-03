@@ -3,6 +3,7 @@ package org.swasth.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
+import org.swasth.job.BaseJobConfig;
 import org.swasth.util.Constants;
 import org.swasth.util.ElasticSearchUtil;
 import org.swasth.util.JSONUtil;
@@ -13,7 +14,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class AuditService {
+public class AuditService() {
     Logger logger = (Logger) LogManager.getLogger(AuditService.class);
     public  static  ElasticSearchUtil esUtil;
 

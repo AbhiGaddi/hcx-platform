@@ -13,7 +13,7 @@ import java.util.*;
 
 import static java.sql.DriverManager.println;
 
-class DataCache {
+public class DataCache {
 
 
     private final BaseJobConfig config;
@@ -80,14 +80,15 @@ class DataCache {
     private static Map<String,String> hgetAll(String key) {
         Map<String, String> dataMap = redisConnection.hgetAll(key);
         if (dataMap.size() > 0) {
-            if(!fields.isEmpty()) dataMap.keySet().retainAll(fields);
+            if(!fields.isEmpty()) dataMap.keySet().retainAll(fields);{
              dataMap.values().removeAll(Collections.singleton(""));
              return  dataMap;
+            }
         } else {
             return new HashMap<>();
         }
     }
-    public static Map<String,Object> getWithRetry(String key){
+    public Map<String,Object> getWithRetry(String key){
         try {
              return  get(key);
         } catch(JedisException ex) {
@@ -99,7 +100,7 @@ class DataCache {
 
     }
 
-    private static HashMap<String,Object> get(String key){
+    public HashMap<String,Object> get(String key){
         String data = redisConnection.get(key);
         if (data != null && !data.isEmpty()) {
             HashMap<String,Object> dataMap = gson.fromJson(data, HashMap.class);
@@ -121,7 +122,7 @@ class DataCache {
     }
 
 
-    public static void hmSet(String key,Map<String,Object> value) {
+    public void hmSet(String key,Map<String,Object> value) {
         try {
              redisConnection.hmset(key,value);
         } catch(JedisException ex) {

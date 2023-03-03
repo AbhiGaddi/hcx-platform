@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class SubscriptionEnrichmentFunction extends BaseProcessFunction {
+public abstract class SubscriptionEnrichmentFunction extends BaseProcessFunction<M, M1> {
     private final BaseJobConfig config;
     private final TypeInformation<String> stringTypeInfo;
 

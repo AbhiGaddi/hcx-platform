@@ -55,19 +55,17 @@ public class BaseJobConfig implements Serializable {
     public static final Integer kafkaProducerBatchSize = config.getInt("kafka.producer.batch.size");
     public static final String groupId = config.getString("kafka.groupId");
     public static final Integer kafkaProducerMaxRequestSize = config.getInt("kafka.producer.max-request-size");
-    
-    public static final Optional<String> kafkaAutoOffsetReset = if(.hasPath("kafka.auto.offset.reset")) Option(config.getS
-                                                                                                                       ("kafka.auto.offset.reset")) else None
-
-
-
+    public static final Integer redisExpires = config.getInt("redis.expires");
+    public static final Optional<String> kafkaAutoOffsetReset = if(config.hasPath("kafka.auto.offset.reset")) Option(config.getS("kafka.auto.offset.reset")) else None
 
     public Properties kafkaConsumerProperties(){
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers", kafkaBrokerServers);
         properties.setProperty("group.id", groupId);
         properties.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
-        kafkaAutoOffsetReset.map { properties.setProperty("auto.offset.reset", _) }
+        if (kafkaAutoOffsetReset.isPresent()) {
+            properties.setProperty("auto.offset.reset", kafkaAutoOffsetReset.get());
+        }
         return properties;
     }
 
@@ -80,6 +78,38 @@ public class BaseJobConfig implements Serializable {
         properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, new Integer(kafkaProducerMaxRequestSize));
         return  properties;
     }
+
+    // Default job metrics
+   public static final String dispatcherSuccessCount = "dispatcher-success-count";
+    public static final String  dispatcherValidationFailedCount = "dispatcher-validation-failed-count";
+    public static final String  dispatcherValidationSuccessCount = "dispatcher-validation-success-count";
+    public static final String  dispatcherFailedCount = "dispatcher-failed-count";
+    public static final String  dispatcherRetryCount = "dispatcher-retry-count";
+    public static final String  auditEventsCount = "audit-events-count";
+
+    //Postgres
+    public static final String postgresUser = config.getString("postgres.user");
+    public static final String postgresPassword = config.getString("postgres.password");
+    public static final String postgresTable = config.getString("postgres.table");
+    public static final String postgresDb = config.getString("postgres.database");
+    public static final String postgresHost = config.getString("postgres.host");
+    public static final String postgresPort = config.getString("postgres.port");
+    public static final String postgresMaxConnections = config.getString("postgres.maxConnections");
+
+    // Elastic Search Config
+    public static final String esUrl = config.getString("es.url");
+    public static final String batchSize = config.getString("es.batchSize");
+    public static final String timeZone = config.getString("audit.timezone");
+    public static final String auditIndex = config.getString("audit.index");
+    public static final String auditAlias = config.getString("audit.alias");
+
+
+    public static final List<Integer> successCodes = config.getIntList("errorCodes.successCodes");
+    public static final List<Integer> errorCodes = config.getIntList("errorCodes.errorCodes");
+    public static final Integer maxRetry = config.getInt("max.retry");
+    public static final List<String> allowedEntitiesForRetry = config.getStringList("allowedEntitiesForRetry");
+
+    public static final String hcxInstanceName = config.getString("hcx.instanceName");
 
 
 }

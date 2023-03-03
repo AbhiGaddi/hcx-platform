@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.kafka.common.metrics.Metrics;
 import org.swasth.cache.DataCache;
 import org.swasth.service.RegistryService;
 import org.swasth.util.Constants;
@@ -16,14 +17,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseProcessFunction {
+public abstract class BaseProcessFunction<M, M1> {
 
 
     public DataCache registryDataCache;
 
+    public BaseJobConfig config;
+
     public RegistryService registryService;
 
-    public abstract void open(Configuration parameters);
+    public abstract void open(Configuration parameters) throws Exception;
 
     public abstract void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Metrics metrics) throws UnsupportedEncodingException;
 
@@ -119,7 +122,7 @@ public abstract class BaseProcessFunction {
                     registryDataCache.hmSet(code, JSONUtil.serialize(collectionMap), config.redisExpires);
                 return collectionMap;
             }
-        } catch (ServerException | JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             //In case of issues with redis cache, fetch the details from the registry
             return getDetails(code);
         }

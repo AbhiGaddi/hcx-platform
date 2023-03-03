@@ -5,36 +5,32 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.zookeeper3.org.apache.zookeeper.proto.ErrorResponse;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
-import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
 import org.apache.kafka.common.metrics.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.exception.PipelineException;
+import org.swasth.job.BaseJobConfig;
+import org.swasth.job.BaseProcessFunction;
 import org.swasth.service.AuditService;
 import org.swasth.util.*;
 
 import javax.swing.text.html.Option;
+import java.io.UnsupportedEncodingException;
 import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.swasth.job.BaseProcessFunction.*;
-
-public class BaseDispatcherFunction {
-
+public class BaseDispatcherFunction extends BaseProcessFunction<Map<String, Object>, Map<String, Object>> {
 
     private final Logger logger = LoggerFactory.getLogger(BaseDispatcherFunction.class);
-
     private PostgresConnectionConfig config;
-
-
     PostgresConnect postgresConnect = new PostgresConnect(config);
     private final AuditService auditService = new AuditService();
 
-    DispatcherUtil dispatcherUtil;
+    private BaseJobConfig baseJobConfig;
+    private DispatcherUtil dispatcherUtil;
 
     private Map<String, Object> payload;
 
@@ -43,9 +39,13 @@ public class BaseDispatcherFunction {
 
 
     public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
         PostgresConnect postgresConnect = new PostgresConnect(new PostgresConnectionConfig(config.user, config.password, config.database, config.host, config.port, config.maxConnections))
-        auditService = new AuditService(config)
+        auditService = new AuditService(baseJobConfig);
+    }
+
+    @Override
+    public void processElement(Map event, ProcessFunction.Context context, Metrics metrics) throws UnsupportedEncodingException {
+
     }
 
     public void close() throws Exception {
@@ -56,7 +56,7 @@ public class BaseDispatcherFunction {
     public Map getPayload(String payloadRefId) throws SQLException {
         System.out.println("Fetching payload from postgres for mid: " + payloadRefId);
         logger.info("Fetching payload from postgres for mid: " + payloadRefId);
-        String postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.postgresTable, payloadRefId);
+        String postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", baseJobConfig.postgresTable, payloadRefId);
         PreparedStatement preparedStatement = postgresConnect.getConnection().prepareStatement(postgresQuery);
         try {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -73,7 +73,7 @@ public class BaseDispatcherFunction {
         }
     }
 
-    public void audit(Map<String,Object> event,ProcessFunction<>, Metrics metrics){
+    public void audit(Map<String,Object> event,ProcessFunction<>, Metrics metrics) throws JsonProcessingException {
         auditService.indexAudit(createAuditRecord(event));
         context.output(config.auditOutputTag, JSONUtil.serialize(createAuditLog(event)));
         metrics.incCounter(config.auditEventsCount);
@@ -90,7 +90,7 @@ public class BaseDispatcherFunction {
     public void dispatchErrorResponse(Map<String,Object> event, Option error, String correlationId, String payloadRefId, Map<String,Object> senderCtx, ProcessFunction[Map<String,Object>], util.Map[String, AnyRef]]#Context, Metrics metrics) throws JsonProcessingException {
          Map<String,Object> protectedMap = new HashMap<>();
         //Update sender code
-        protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode);
+        protectedMap.put(Constants.HCX_SENDER_CODE, BaseJobConfig.hcxRegistryCode);
         //Update recipient code
         protectedMap.put(Constants.HCX_RECIPIENT_CODE, getProtocolStringValue(event,Constants.HCX_SENDER_CODE));
         //Keep same correlationId
@@ -108,7 +108,7 @@ public class BaseDispatcherFunction {
         DispatcherResult result = dispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap));
         if(result.retry) {
             logger.info("Error while dispatching error response: " + result.error.get.message.get);
-            metrics.incCounter(metric = config.dispatcherRetryCount);
+            metrics.incCounter(metric = BaseJobConfig.dispatcherRetryCount);
         }
     }
 
@@ -117,8 +117,10 @@ public class BaseDispatcherFunction {
         String correlationId = getProtocolStringValue(event,Constants.HCX_CORRELATION_ID);
         String  payloadRefId = event.get(Constants.MID).toString();
         // TODO change cdata to context after discussion.
-        Map<String,Object> senderCtx = event.getOrDefault(Constants.CDATA, new HashMap<>()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
-        Map<String,Object> recipientCtx = event.getOrDefault(Constants.CDATA, new HashMap<>()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+        Map<String, Object> cdata = (Map<String, Object>) event.getOrDefault(Constants.CDATA, new HashMap<>());
+        Map<String, Object> senderCtx = ((Map<String, Object>) cdata.getOrDefault(Constants.SENDER, new HashMap<>()));
+        Map<String,Object> recipientCtx = ((Map<String, Object>) cdata.getOrDefault(Constants.RECIPIENT, new HashMap<>()));
+
         try {
             if (MapUtils.isEmpty(senderCtx)) {
                 System.out.println("sender context is empty for mid: " + payloadRefId);
@@ -129,7 +131,7 @@ public class BaseDispatcherFunction {
                 System.out.println("recipient context is empty for mid: " + payloadRefId);
                 logger.warn("recipient context is empty for mid: " + payloadRefId);
                 //Send on_action request back to sender when recipient context is missing
-                val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
+                val errorResponse = ErrorResponse(new Option(Constants.RECIPIENT_ERROR_CODE), new Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
                 dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
             } else {
                 System.out.println("sender and recipient available for mid: " + payloadRefId);
@@ -142,33 +144,33 @@ public class BaseDispatcherFunction {
                 }
 
                 if (validationResult.status) {
-                    metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
+                    metrics.incCounter(metric = config.dispatcherValidationSuccessCount);
                     payload = getPayload(payloadRefId);
                     val payloadJSON = JSONUtil.serialize(payload);
                     val result = dispatcherUtil.dispatch(recipientCtx, payloadJSON);
-                    logger.info("result::" + result)
+                    logger.info("result::" + result);
                     //Adding updatedTimestamp for auditing
                     event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime());
                     if (result.success) {
                         updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS);
                         setStatus(event, Constants.DISPATCH_STATUS);
-                        metrics.incCounter(metric = config.dispatcherSuccessCount);
+                        metrics.incCounter(metric = BaseJobConfig.dispatcherSuccessCount);
                     }
                     if (result.retry) {
                         int retryCount = 0 ;
                         if (event.containsKey(Constants.RETRY_INDEX))
-                            retryCount = (Integer) event.get(Constants.RETRY_INDEX)
-                        if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
-                            dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
-                        } else if (retryCount < config.maxRetry) {
+                            retryCount = (Integer) event.get(Constants.RETRY_INDEX);
+                        if (!BaseJobConfig.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).toString())) || retryCount == BaseJobConfig.maxRetry) {
+                            dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics);
+                        } else if (retryCount < baseJobConfig.maxRetry) {
                             updateDBStatus(payloadRefId, Constants.REQ_RETRY);
-                            setStatus(event, Constants.QUEUED_STATUS)
-                            metrics.incCounter(metric = config.dispatcherRetryCount)
-                            System.out.println("Event is updated for retrying..")
+                            setStatus(event, Constants.QUEUED_STATUS);
+                            metrics.incCounter(metric = config.dispatcherRetryCount);
+                            System.out.println("Event is updated for retrying..");
                         }
                     }
                     if (!result.retry && !result.success) {
-                        dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+                        dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics);
                     }
                     audit(event, context, metrics);
                 }
@@ -176,8 +178,8 @@ public class BaseDispatcherFunction {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         } catch (PipelineException pipelineException){
-                val errorResponse = ErrorResponse(Option(ex.code), Option(ex.message), Option(ex.trace))
-                dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
+                ErrorResponse errorResponse = ErrorResponse(Option(ex.code), Option(ex.message), Option(ex.trace));
+                dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -188,14 +190,16 @@ public class BaseDispatcherFunction {
     private String getEntity(String path) {
         if (path.contains("status")) {
             return "status";
-        }
-        else if (path.contains("on_search")) return  "searchresponse";
-        else if (path.contains("search")) return  "search";
-        else {
-            Array[String] str = path.split("/");
-            return str(str. - 2);
+        } else if (path.contains("on_search")) {
+            return "searchresponse";
+        } else if (path.contains("search")) {
+            return "search";
+        } else {
+            String[] str = path.split("/");
+            return str[str.length - 2];
         }
     }
+
 
 
     private Boolean executeDBQuery(String query) throws Exception {
@@ -210,12 +214,20 @@ public class BaseDispatcherFunction {
     }
 
     private void updateDBStatus(String payloadRefId,String status) throws Exception {
-        String query = "UPDATE %s SET status = '%s', lastUpdatedOn = %d WHERE mid = '%s';".format(config.postgresTable, status, System.currentTimeMillis(), payloadRefId);
+        String query = String.format(BaseJobConfig.postgresTable, status, System.currentTimeMillis(), payloadRefId);
         executeDBQuery(query);
     }
 
+    @Override
     public List<String> metricsList() {
-       return List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount);
+        return Arrays.asList(
+                baseJobConfig.dispatcherSuccessCount,
+                BaseJobConfig.dispatcherFailedCount,
+                BaseJobConfig.dispatcherRetryCount,
+                BaseJobConfig.dispatcherValidationFailedCount,
+                BaseJobConfig.dispatcherValidationSuccessCount,
+                BaseJobConfig.auditEventsCount
+        );
     }
 
     public Map<String,Object> createAuditRecord(Map<String,Object> event) throws JsonProcessingException {
@@ -286,7 +298,7 @@ public class BaseDispatcherFunction {
     }
 
 
-    public DispatcherResult dispatchRecipient(String baseSenderCode,  String action, Map<String,Object> parsedPayload) throws JsonProcessingException {
+    public DispatcherResult dispatchRecipient(String baseSenderCode,  String action, Map<String,Object> parsedPayload) throws JsonProcessingException, UnsupportedEncodingException {
         Map<String,Object> recipientDetails = fetchDetails(baseSenderCode);
         Map<String,Object> recipientContext = createRecipientContext(recipientDetails, action);
         Map<String,Object> updatedPayload = new HashMap<>();

@@ -1,19 +1,18 @@
 package org.swasth.function;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.kafka.common.metrics.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.swasth.dp.core.job.BaseJobConfig;
-import org.swasth.dp.core.job.BaseProcessFunction;
-import org.swasth.dp.core.job.Metrics;
-import org.swasth.dp.core.util.Constants;
 import org.swasth.job.BaseJobConfig;
 import org.swasth.job.BaseProcessFunction;
 import org.swasth.util.Constants;
@@ -24,7 +23,7 @@ public class ContextEnrichmentFunction extends BaseProcessFunction<Map<String, O
     private final TypeInformation<String> stringTypeInfo;
 
     public ContextEnrichmentFunction(BaseJobConfig config, TypeInformation<String> stringTypeInfo) {
-        super(config);
+        super();
         this.config = config;
         this.stringTypeInfo = stringTypeInfo;
     }
@@ -61,8 +60,10 @@ public class ContextEnrichmentFunction extends BaseProcessFunction<Map<String, O
 
         if (MapUtils.isNotEmpty(result)) {
             event.put(Constants.CDATA, result);
-
-     void fetchDetails() {
-
-            }
+        }
     }
+    @Override
+    public List<String> metricsList() {
+        return new ArrayList<>();
+    }
+}

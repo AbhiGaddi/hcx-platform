@@ -15,6 +15,11 @@ public class DateTimeUtils {
         try {
             DateTime requestTime = new DateTime(timestamp);
             DateTime currentTime = DateTime.now();
+            System.out.println("request time------------- "  +  requestTime);
+            System.out.println("current time--------------" + currentTime);
+            System.out.println("is before" + requestTime.isBefore(currentTime.minusHours(range)));
+            System.out.println("isAfter" + requestTime.isAfter(currentTime));
+            System.out.println(!requestTime.isBefore(currentTime.minusHours(range)) && !requestTime.isAfter(currentTime));
             return (!requestTime.isBefore(currentTime.minusHours(range)) && !requestTime.isAfter(currentTime));
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, MessageFormat.format(INVALID_TIMESTAMP_MSG, e.getMessage()));

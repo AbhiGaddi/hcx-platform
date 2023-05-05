@@ -5,10 +5,12 @@ on:
     inputs:
       repo:
         description: Custom build repository to be used
+        default: Swasth-Digital-Health-Foundation/hcx-platform
         required: false
       branch:
         description: Custom build branch to be used
-        required: false
+        default: sprint-
+        required: true
 
 #    tags:
 #      - *

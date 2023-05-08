@@ -112,3 +112,14 @@ certificates:
   accesskey : ${certificates_accessKey:}
   secretKey : ${certificates_accessSecret:}
   bucketName : ${certificates_bucketName:}
+
+spring:
+  sleuth:
+    otel:
+      config:
+        trace-id-ratio-based: 1.0
+      exporter:
+        otlp:
+          endpoint: http://localhost:4317
+  application:
+    name: hcx-apis

@@ -55,6 +55,10 @@
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <exclusions>
@@ -138,6 +142,10 @@
             <groupId>org.swasth</groupId>
             <artifactId>redis-cache</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
         </dependency>
     </dependencies>
     <dependencyManagement>

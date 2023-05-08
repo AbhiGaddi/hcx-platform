@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.5</version>
+		<version>2.7.9</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.swasth</groupId>
@@ -13,9 +13,44 @@
 	<version>1.0-SNAPSHOT</version>
 	<properties>
 		<java.version>11</java.version>
-		<spring.version>2.5.5</spring.version>
+		<spring.version>2.7.9</spring.version>
 		<log4j2.version>2.16.0</log4j2.version>
+		<release.train.version>2021.0.5</release.train.version>
+		<spring-cloud-sleuth-otel.version>1.1.2</spring-cloud-sleuth-otel.version>
+		<otel-exporter-otlp.version>1.23.1</otel-exporter-otlp.version>
 	</properties>
+<!--	<repositories>-->
+<!--		<repository>-->
+<!--			<id>opentelemetry</id>-->
+<!--			<name>OpenTelemetry Repository</name>-->
+<!--			<url>https://repo1.maven.org/maven2/io/opentelemetry/</url>-->
+<!--		</repository>-->
+<!--	</repositories>-->
+<!--	<dependencyManagement>-->
+<!--		<dependencies>-->
+<!--			<dependency>-->
+<!--				<groupId>org.springframework.boot</groupId>-->
+<!--				<artifactId>spring-boot-dependencies</artifactId>-->
+<!--				<version>${spring.version}</version>-->
+<!--				<type>pom</type>-->
+<!--				<scope>import</scope>-->
+<!--			</dependency>-->
+<!--			<dependency>-->
+<!--				<groupId>org.springframework.cloud</groupId>-->
+<!--				<artifactId>spring-cloud-dependencies</artifactId>-->
+<!--				<version>${release.train.version}</version>-->
+<!--				<type>pom</type>-->
+<!--				<scope>import</scope>-->
+<!--			</dependency>-->
+<!--			<dependency>-->
+<!--				<groupId>org.springframework.cloud</groupId>-->
+<!--				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>-->
+<!--				<version>${spring-cloud-sleuth-otel.version}</version>-->
+<!--				<scope>import</scope>-->
+<!--				<type>pom</type>-->
+<!--			</dependency>-->
+<!--		</dependencies>-->
+<!--	</dependencyManagement>-->
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -35,8 +70,9 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
-			<version>2.7.7</version>
+			<version>2.9.1</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.swasth</groupId>
 			<artifactId>hcx-common</artifactId>
@@ -80,21 +116,15 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
-			<version>2.7.7</version>
+			<version>2.9.1</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
+		<dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
             <version>3.14.9</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-			<version>3.14.9</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
@@ -105,6 +135,30 @@
 			<artifactId>cloud-storage-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-starter-sleuth</artifactId>-->
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<groupId>org.springframework.cloud</groupId>-->
+<!--					<artifactId>spring-cloud-sleuth-brave</artifactId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>io.opentelemetry</groupId>-->
+<!--			<artifactId>opentelemetry-exporter-otlp</artifactId>-->
+<!--			<version>${otel-exporter-otlp.version}</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.9.2</version>
 		</dependency>
 	</dependencies>
 

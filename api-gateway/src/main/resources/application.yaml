@@ -1,6 +1,10 @@
 logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId}] %-5level %logger{35} - %msg%n"
+  console:
+    enabled: true
 
 server:
   port: ${SERVER_PORT:8095}

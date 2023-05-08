@@ -23,3 +23,14 @@ aws:
   accessKey: ${aws_accessKey:testAccessKey}
   accessSecret: ${aws_accessSecret:testAccessSecret}
   region: ${aws_region:ap-southeast-1}
+
+spring:
+  sleuth:
+    otel:
+      config:
+        trace-id-ratio-based: 1.0
+      exporter:
+        otlp:
+          endpoint: http://localhost:4317
+  application:
+    name: hcx-onboard

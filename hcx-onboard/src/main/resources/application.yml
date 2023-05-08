@@ -85,3 +85,15 @@ keycloak:
   master-realm: ${keycloak_master_realm:master}
   client-id: ${keycloack_client_id:admin-cli}
   users-realm: ${keycloack_users_realm:swasth-health-claim-exchange}
+
+
+spring:
+  sleuth:
+    otel:
+      config:
+        trace-id-ratio-based: 1.0
+      exporter:
+        otlp:
+          endpoint: http://localhost:4317
+  application:
+    name: hcx-onboard

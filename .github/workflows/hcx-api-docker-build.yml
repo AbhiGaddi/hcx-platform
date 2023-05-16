@@ -34,8 +34,10 @@ jobs:
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: |
+            ~/.m2/repository/org/swasth/hcx-platform/hcx-apis
+            ~/.m2/repository/org/swasth/hcx-platform/hcx-core
+          key: ${{ runner.os }}-maven-${{ hashFiles('hcx-platform/hcx-apis/pom.xml') }}-${{ hashFiles('hcx-platform/hcx-core/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Maven Build

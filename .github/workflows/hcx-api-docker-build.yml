@@ -34,7 +34,7 @@ jobs:
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: ~/.m2/modules/hcx-apis
           key: ${{ runner.os }}-maven-${{ hashFiles('hcx-core/pom.xml','hcx-apis/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 

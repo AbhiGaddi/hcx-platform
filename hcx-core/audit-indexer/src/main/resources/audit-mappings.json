@@ -152,6 +152,9 @@
     },
     "identity_verification": {
       "type": "keyword"
+    },
+    "payload_size": {
+      "type": "integer"
     }
   }
 }

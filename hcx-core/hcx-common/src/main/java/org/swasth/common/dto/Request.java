@@ -1,5 +1,6 @@
 package org.swasth.common.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
@@ -190,6 +191,10 @@ public class Request {
     public List<String> getSenderTag() { return (List<String>) senderDetails().getOrDefault(TAGS,new ArrayList<>());}
 
     public List<String> getRecipientTag() { return (List<String>) recipientDetails().getOrDefault(TAGS,new ArrayList<>());}
+
+    public byte[] getPayloadSize() {
+        return  payload.getOrDefault(PAYLOAD,"").toString().getBytes();
+    }
 
 }
 

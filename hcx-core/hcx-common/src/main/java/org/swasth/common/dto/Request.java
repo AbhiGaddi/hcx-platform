@@ -1,6 +1,5 @@
 package org.swasth.common.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;

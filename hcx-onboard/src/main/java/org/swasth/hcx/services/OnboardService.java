@@ -500,8 +500,6 @@ public class OnboardService extends BaseController {
                     if (!result.next()) {
                         mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
                         mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
-                    }
-                    if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
                         emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails));
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {

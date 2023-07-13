@@ -59,7 +59,7 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> generateAuditEvent(Request request) {
+    public Map<String, Object> generateAuditEvent(Request request){
         Map<String, Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
@@ -86,6 +86,7 @@ public class EventGenerator {
         event.put(RECIPIENT_NAME, request.getRecipientName());
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
         event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
+        event.put(PAYLOAD_SIZE,request.getPayloadSize().length);
         getTag(request,event);
         return event;
     }

@@ -47,6 +47,7 @@ object Constants {
   val RECIPIENT_NAME = "recipientName"
   val SENDER_PRIMARY_EMAIL = "senderPrimaryEmail"
   val RECIPIENT_PRIMARY_EMAIL = "recipientPrimaryEmail"
+  val PAYLOAD_SIZE = "payload_size"
   val ROLES = "roles"
   val RETRY_INDEX = "retryIndex"
   val TYPE = "type"

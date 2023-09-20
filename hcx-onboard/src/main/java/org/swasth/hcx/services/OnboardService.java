@@ -751,9 +751,12 @@ public class OnboardService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
+        System.out.println("--------token roles ----------" + Collections.singletonList(token.getRole()));
         user.setUserId(createOrAddUser(headers, user, token.getParticipantCode(), Collections.singletonList(token.getRole())));
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
+        System.out.println("--------------user get tenant roles ------------" + user.getTenantRoles());
+        System.out.println("----------user get tenant roles with index---------------" + user.getTenantRoles().get(0));
         // user
         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         // participant

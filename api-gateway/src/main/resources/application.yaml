@@ -212,7 +212,7 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/payer/**,/${version.external08}/user/create
+            - Path=/payer/**,/${version.external08}/user/create,/upload/documents
 
         - id: hcx-keycloak-route
           uri: ${hcx-keycloak.basePath}

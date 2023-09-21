@@ -251,7 +251,7 @@ rbac:
 
   - role: HIE/HIO.HCX
     paths:
-      - /upload/documents
+      - /v0.7/upload/documents
     regexPaths:
       - /v0.7/**
       - /v0.8/**

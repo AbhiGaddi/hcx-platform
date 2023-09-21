@@ -251,6 +251,7 @@ rbac:
 
   - role: HIE/HIO.HCX
     paths:
+      - /upload/documents
     regexPaths:
       - /v0.7/**
       - /v0.8/**
@@ -262,7 +263,6 @@ rbac:
       - /v0.8/participant/update
       - /v0.8/onboard/applicant/password/generate
       - /v0.8/participant/onboard/update
-      - /upload/documents
     regexPaths:
       - /v0.8/user/**
       - /v0.8/participant/user/**

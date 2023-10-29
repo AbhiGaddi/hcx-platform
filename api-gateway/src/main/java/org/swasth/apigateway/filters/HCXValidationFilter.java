@@ -131,7 +131,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj.getPayload().put(SENDERDETAILS, senderDetails);
                     requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
-                    System.out.println("------------ partcicipant ctx details ---------"  + participantCtxAuditDetails);
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId(), incomingRequestExpiryDays), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path, jweRequest, correlationIDReuseAfterDays, getCorrelationAuditData(jweRequest.getCorrelationId(), correlationIDReuseAfterDays));
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
@@ -240,7 +239,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     private List<Map<String, Object>> getParticipantCtxAuditData(String senderCode, String recipientCode, String correlationId) throws Exception {
         Map<String, Object> dateFilters = constructDateFilters(correlationIDReuseAfterDays);
-        System.out.println("---------date filters ---------" + dateFilters);
         Map<String, String> filters = new HashMap<>();
         filters.put(HCX_SENDER_CODE, recipientCode);
         filters.put(HCX_RECIPIENT_CODE, senderCode);

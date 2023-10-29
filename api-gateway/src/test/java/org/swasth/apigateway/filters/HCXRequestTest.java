@@ -30,25 +30,25 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> assertEquals(HttpStatus.OK, result.getStatus()));
     }
 
-//    @Test
-//    void check_hcx_request_success_scenario() throws Exception {
-//        server.enqueue(new MockResponse()
-//                .setResponseCode(202)
-//                .addHeader("Content-Type", "application/json"));
-//
-//        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-//                .thenReturn(getProviderDetails())
-//                .thenReturn(getPayorDetails());
-//        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-//
-//        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-//                .header(Constants.AUTHORIZATION, getProviderToken())
-//                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-//                .bodyValue(getRequestBody())
-//                .exchange()
-//                .expectBody(Map.class)
-//                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
-//    }
+    @Test
+    void check_hcx_request_success_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+    }
 
   // scenario : api call id is already exist in the getAuditLogs, we are making request one more time, and it is failing.
     @Test
@@ -74,22 +74,22 @@ class HCXRequestTest extends BaseSpec {
                 });
     }
   
-//  @Test
-//    void check_hcx_request_success_for_sender_context_api_call_id_scenario() throws Exception {
-//        server.enqueue(new MockResponse()
-//                .setResponseCode(202)
-//                .addHeader("Content-Type", "application/json"));
-//        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-//                .thenReturn(getProviderDetails())
-//                .thenReturn(getPayorDetails());
-//        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-//                .header(Constants.AUTHORIZATION, getProviderToken())
-//                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-//                .bodyValue(getSenderCodeRequestBody())
-//                .exchange()
-//                .expectBody(Map.class)
-//                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
-//    }
+  @Test
+    void check_hcx_request_success_for_sender_context_api_call_id_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSenderCodeRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+    }
   
     // scenario : Request with correlationId is already exist in the getAuditLogs,and we are making request again, and it's failing
     @Test
@@ -222,29 +222,29 @@ class HCXRequestTest extends BaseSpec {
                 });
     }
 
-//    @Test
-//    void check_hcx_on_action_request_success_scenario() throws Exception {
-//        server.enqueue(new MockResponse()
-//                .setResponseCode(202)
-//                .addHeader("Content-Type", "application/json"));
-//
-//        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-//                .thenReturn(getPayorDetails())
-//                .thenReturn(getProviderDetails());
-//        Mockito.when(auditService.getAuditLogs(any()))
-//                .thenReturn(getAuditLogs())
-//                .thenReturn(getAuditLogs())
-//                .thenReturn(new ArrayList<>());
-//
-//
-//        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
-//                .header(Constants.AUTHORIZATION, getPayorToken())
-//                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
-//                .bodyValue(getOnRequestBody())
-//                .exchange()
-//                .expectBody(Map.class)
-//                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
-//    }
+    @Test
+    void check_hcx_on_action_request_success_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getProviderDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(getAuditLogs())
+                .thenReturn(getAuditLogs())
+                .thenReturn(new ArrayList<>());
+
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(getOnRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+    }
 
     @Test
     void check_hcx_json_request_success_scenario() throws Exception {
@@ -620,48 +620,48 @@ class HCXRequestTest extends BaseSpec {
                 });
     }
 
-//    @Test
-//    void check_hcx_forward_request_success_scenario() throws Exception {
-//        server.enqueue(new MockResponse()
-//                .setResponseCode(202)
-//                .addHeader("Content-Type", "application/json"));
-//
-//        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-//                .thenReturn(getPayorDetails())
-//                .thenReturn(getPayor2Details());
-//        Mockito.when(auditService.getAuditLogs(any()))
-//                .thenReturn(getAuditLogs())
-//                .thenReturn(getAuditLogs())
-//                .thenReturn(new ArrayList<>());
-//
-//        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-//                .header(Constants.AUTHORIZATION, getPayorToken())
-//                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
-//                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
-//                .exchange()
-//                .expectBody(Map.class)
-//                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
-//    }
+    @Test
+    void check_hcx_forward_request_success_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
 
-//    @Test
-//    void check_hcx_forward_request_invalid_correlation_id_scenario() throws Exception {
-//        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-//                .thenReturn(getPayorDetails())
-//                .thenReturn(getPayor2Details());
-//        Mockito.when(auditService.getAuditLogs(any()))
-//                .thenReturn(new ArrayList<>());
-//
-//        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-//                .header(Constants.AUTHORIZATION, getPayorToken())
-//                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
-//                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
-//                .exchange()
-//                .expectBody(Map.class)
-//                .consumeWith(result -> {
-//                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-//                    assertEquals(ErrorCodes.ERR_INVALID_FORWARD_REQ.name(), getResponseErrorCode(result));
-//                });
-//    }
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getPayor2Details());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(getAuditLogs())
+                .thenReturn(getAuditLogs())
+                .thenReturn(new ArrayList<>());
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+    }
+
+    @Test
+    void check_hcx_forward_request_invalid_correlation_id_scenario() throws Exception {
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getPayor2Details());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(new ArrayList<>());
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_FORWARD_REQ.name(), getResponseErrorCode(result));
+                });
+    }
 
     @Test
     void check_hcx_forward_request_invalid_recipient_scenario() throws Exception {

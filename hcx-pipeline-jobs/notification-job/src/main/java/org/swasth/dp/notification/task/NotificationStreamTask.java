@@ -51,7 +51,7 @@ public class NotificationStreamTask {
         SourceFunction<Map<String,Object>> notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
         SourceFunction<Map<String,Object>> subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
         SourceFunction<Map<String,Object>> onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
-//        env.enableCheckpointing(config.checkpointingInterval());
+        env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
         //Notification Stream

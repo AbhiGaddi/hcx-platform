@@ -14,7 +14,8 @@ object FlinkUtil {
   def getExecutionContext(config: BaseJobConfig): StreamExecutionEnvironment = {
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     env.getConfig.setUseSnapshotCompression(config.enableCompressedCheckpointing)
-//    env.enableCheckpointing(config.checkpointingInterval)
+    env.enableCheckpointing(config.checkpointingInterval)
+    env.getCheckpointConfig.setCheckpointTimeout(config.checkpointingTimeout)
 
     /**
       * Use Blob storage as distributed state backend if enabled

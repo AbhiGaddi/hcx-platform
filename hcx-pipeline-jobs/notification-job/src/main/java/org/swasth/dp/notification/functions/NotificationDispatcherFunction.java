@@ -1,21 +1,25 @@
 package org.swasth.dp.notification.functions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.UUIDUtils;
 import org.swasth.dp.core.function.DispatcherResult;
 import org.swasth.dp.core.function.ErrorResponse;
 import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
+import org.swasth.kafka.client.IEventService;
 import scala.Option;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static org.swasth.common.utils.Constants.*;
 
 public class NotificationDispatcherFunction extends BaseNotificationFunction {
 
@@ -24,8 +28,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     public NotificationDispatcherFunction(NotificationConfig config) {
         super(config);
     }
-
-    Producer<String, String> kafkaProducer = new KafkaProducer<>((Map<String, Object>) createProducer());
+    private IEventService kafkaClient;
     @Override
     public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
@@ -81,12 +84,9 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     private void pushNotificationToMessageTopic(String email) throws Exception {
-        System.out.println("-----pushed notification ---------");
-        System.out.println("------email-----------------"+ email);
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification", List.of(email), new ArrayList<>(), new ArrayList<>());
-            System.out.println("----email event -------" + emailEvent);
-            kafkaProducer.send(new ProducerRecord<>("dev.hcx.request.message", "email", emailEvent));
+            kafkaClient.send("dev.hcx.request.message", EMAIL, emailEvent);
             System.out.println("Email event is pushed to kafka :: " + emailEvent);
             logger.debug("Email event is pushed to kafka :: " + emailEvent);
         }
@@ -94,12 +94,12 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
 
     public String getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws Exception {
         Map<String, Object> event = new HashMap<>();
-        event.put("eid", "MESSAGE");
-        event.put("mid", UUID.randomUUID());
-        event.put("ets", System.currentTimeMillis());
-        event.put("channel", "email");
-        event.put("subject", subject);
-        event.put("message", message);
+        event.put(EID, "MESSAGE");
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(CHANNEL, EMAIL);
+        event.put(SUBJECT, subject);
+        event.put(MESSAGE, message);
         Map<String, Object> recipients = new HashMap<>();
         recipients.put("to", to);
         recipients.put("cc", cc);
@@ -108,22 +108,6 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         return JSONUtil.serialize(event);
     }
 
-    public Properties kafkaProperties(){
-        String kafkaBootstrapServers = "";  // Replace with your Kafka bootstrap servers
-        Properties kafkaProperties = new Properties();
-        kafkaProperties.put("bootstrap.servers", kafkaBootstrapServers);
-        kafkaProperties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        kafkaProperties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        return kafkaProperties;
-    }
 
-    private KafkaProducer<String,String> createProducer(){
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "kafka.kafka.svc.cluster.local:9092");
-        props.put("client.id", "KafkaClientProducer");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        return new KafkaProducer<>(props);
-    }
 
 }

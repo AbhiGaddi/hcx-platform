@@ -25,7 +25,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         super(config);
     }
 
-    Producer<String, String> kafkaProducer = new KafkaProducer<>(kafkaProperties());
+    Producer<String, String> kafkaProducer = new KafkaProducer<>((Map<String, Object>) createProducer());
     @Override
     public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
@@ -109,11 +109,21 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     public Properties kafkaProperties(){
-        String kafkaBootstrapServers = "kafka.kafka.svc.cluster.local:9092";  // Replace with your Kafka bootstrap servers
+        String kafkaBootstrapServers = "";  // Replace with your Kafka bootstrap servers
         Properties kafkaProperties = new Properties();
         kafkaProperties.put("bootstrap.servers", kafkaBootstrapServers);
         kafkaProperties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         kafkaProperties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         return kafkaProperties;
     }
+
+    private KafkaProducer<String,String> createProducer(){
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "kafka.kafka.svc.cluster.local:9092");
+        props.put("client.id", "KafkaClientProducer");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        return new KafkaProducer<>(props);
+    }
+
 }

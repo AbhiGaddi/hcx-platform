@@ -1,25 +1,21 @@
 package org.swasth.dp.notification.functions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.UUIDUtils;
 import org.swasth.dp.core.function.DispatcherResult;
 import org.swasth.dp.core.function.ErrorResponse;
 import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
-import org.swasth.kafka.client.IEventService;
 import scala.Option;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static org.swasth.common.utils.Constants.*;
 
 public class NotificationDispatcherFunction extends BaseNotificationFunction {
 
@@ -29,7 +25,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         super(config);
     }
 
-    private IEventService kafkaClient;
+    Producer<String, String> kafkaProducer = new KafkaProducer<>(kafkaProperties());
     @Override
     public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
@@ -85,27 +81,39 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     private void pushNotificationToMessageTopic(String email) throws Exception {
+        System.out.println("-----pushed notification ---------");
+        System.out.println("------email-----------------"+ email);
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification", List.of(email), new ArrayList<>(), new ArrayList<>());
-            kafkaClient.send("dev.hcx.request.message", EMAIL, emailEvent);
+            System.out.println("----email event -------" + emailEvent);
+            kafkaProducer.send(new ProducerRecord<>("dev.hcx.request.message", "email", emailEvent));
             System.out.println("Email event is pushed to kafka :: " + emailEvent);
             logger.debug("Email event is pushed to kafka :: " + emailEvent);
         }
     }
 
-    public String getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws JsonProcessingException {
+    public String getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws Exception {
         Map<String, Object> event = new HashMap<>();
-        event.put(EID, "MESSAGE");
-        event.put(MID, UUIDUtils.getUUID());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(CHANNEL, EMAIL);
-        event.put(SUBJECT, subject);
-        event.put(MESSAGE, message);
+        event.put("eid", "MESSAGE");
+        event.put("mid", UUID.randomUUID());
+        event.put("ets", System.currentTimeMillis());
+        event.put("channel", "email");
+        event.put("subject", subject);
+        event.put("message", message);
         Map<String, Object> recipients = new HashMap<>();
-        recipients.put(TO, to);
-        recipients.put(CC, cc);
-        recipients.put(BCC, bcc);
-        event.put(RECIPIENTS, recipients);
-        return JSONUtils.serialize(event);
+        recipients.put("to", to);
+        recipients.put("cc", cc);
+        recipients.put("bcc", bcc);
+        event.put("recipients", recipients);
+        return JSONUtil.serialize(event);
+    }
+
+    public Properties kafkaProperties(){
+        String kafkaBootstrapServers = "kafka.kafka.svc.cluster.local:9092";  // Replace with your Kafka bootstrap servers
+        Properties kafkaProperties = new Properties();
+        kafkaProperties.put("bootstrap.servers", kafkaBootstrapServers);
+        kafkaProperties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        kafkaProperties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        return kafkaProperties;
     }
 }

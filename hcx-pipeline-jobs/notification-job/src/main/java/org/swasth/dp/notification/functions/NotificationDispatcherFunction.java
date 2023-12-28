@@ -87,7 +87,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     private void pushNotificationToMessageTopic(String email) throws Exception {
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification", List.of(email), new ArrayList<>(), new ArrayList<>());
-            kafkaClient.send(config.kafkaEmailTopic, EMAIL, emailEvent);
+            kafkaClient.send("dev.hcx.request.message", EMAIL, emailEvent);
             System.out.println("Email event is pushed to kafka :: " + emailEvent);
             logger.debug("Email event is pushed to kafka :: " + emailEvent);
         }

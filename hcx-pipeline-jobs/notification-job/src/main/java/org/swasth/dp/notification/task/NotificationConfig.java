@@ -11,8 +11,6 @@ public class NotificationConfig extends BaseJobConfig {
     public String kafkaInputTopic;
     public String subscriptionInputTopic;
     public String onSubscriptionInputTopic;
-
-    public String kafkaEmailTopic;
     // Consumers
     public String notificationConsumer = "notification-consumer";
     public String subscriptionConsumer = "subscription-consumer";
@@ -38,7 +36,6 @@ public class NotificationConfig extends BaseJobConfig {
         dispatcherParallelism = config.getInt("task.downstream.operators.dispatcher.parallelism");
         subscriptionInputTopic = config.getString("kafka.subscription.input.topic");
         onSubscriptionInputTopic = config.getString("kafka.onsubscription.input.topic");
-        kafkaEmailTopic = config.getString("kafka.message.topic");
     }
 
 }

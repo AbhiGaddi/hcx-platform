@@ -81,6 +81,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, NOTIFICATION_TOPIC_ERR);
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, MessageFormat.format(NOTIFICATION_INVALID_TOPIC, getTopicCode()));
         Map<String, Object> notification = NotificationUtils.getNotification(getTopicCode());
+        System.out.println("Notification Allowed -----" + notification);
         validateCondition(notification.get("status").equals(Constants.INACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, NOTIFICATION_STATUS);
         if (notification.get(Constants.CATEGORY).equals(Constants.NETWORK)) {
             validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) senderDetails.get(ROLES)) || !allowedNetworkCodes.contains(senderDetails.get(Constants.PARTICIPANT_CODE)),

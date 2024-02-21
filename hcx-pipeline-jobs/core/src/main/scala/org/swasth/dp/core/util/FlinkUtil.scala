@@ -16,11 +16,15 @@ object FlinkUtil {
     env.getConfig.setUseSnapshotCompression(config.enableCompressedCheckpointing)
     env.enableCheckpointing(config.checkpointingInterval)
 
+    Console.println("enableDistributedCheckpointing ---"  + config.enableDistributedCheckpointing)
+    Console.println("enableDistributedCheckpointing---  "  + config.enableDistributedCheckpointing)
     /**
       * Use Blob storage as distributed state backend if enabled
       */
     config.enableDistributedCheckpointing match {
       case Some(true) => {
+        Console.println("It came inside the distributed check pointing")
+        Console.println("checkpointingBaseUrl----" + config.checkpointingBaseUrl)
         val stateBackend: StateBackend = new FsStateBackend(s"${config.checkpointingBaseUrl.getOrElse("")}/${config.jobName}", true)
         env.setStateBackend(stateBackend)
         val checkpointConfig: CheckpointConfig = env.getCheckpointConfig

@@ -117,7 +117,22 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
+        if (!templateExists(topicCode + ".ftl")) {
+            message = ""; // Set message to empty if template doesn't exist
+        }
         model.put("MESSAGE", message);
         return renderTemplate(topicCode + ".ftl", model);
     }
+
+    private boolean templateExists(String templateName) {
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
+        try {
+            cfg.getTemplate(templateName);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
 }

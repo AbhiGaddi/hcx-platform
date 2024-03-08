@@ -107,12 +107,15 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         event.put("recipients", recipients);
         return event;
     }
+
     public String renderTemplate(String templateName, Map<String, Object> model) throws IOException, TemplateException {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
-        Template template = cfg.getTemplate(templateName);
         StringWriter writer = new StringWriter();
-        template.process(model, writer);
+        if (!templateName.isEmpty()) {
+            Template template = cfg.getTemplate(templateName);
+            template.process(model, writer);
+        }
         return writer.toString();
     }
 

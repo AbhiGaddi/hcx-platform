@@ -112,16 +112,16 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
         StringWriter writer = new StringWriter();
-        if (!templateName.isEmpty()) {
-            Template template = cfg.getTemplate(templateName);
-            template.process(model, writer);
+        if (templateExists(templateName)) {
+            return ""; // Return empty string if template does not exist
         }
+        Template template = cfg.getTemplate(templateName);
+        template.process(model, writer);
         return writer.toString();
     }
 
     private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
-        System.out.println("Template exists -----"  + templateExists(topicCode + ".ftl"));
-        if (!templateExists(topicCode + ".ftl")) {
+        if (templateExists(topicCode + ".ftl")) {
             message = ""; // Set message to empty if template doesn't exist
         }
         model.put("MESSAGE", message);
@@ -133,10 +133,9 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
         try {
             cfg.getTemplate(templateName);
-            return true;
-        } catch (IOException e) {
             return false;
+        } catch (IOException e) {
+            return true;
         }
     }
-
 }

@@ -58,7 +58,6 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 Map<String , Object > model = new HashMap<>();
                 model.put("USER_NAME",userName);
                 String textMessage = applyTemplateVars(topicCode, message, model);
-                System.out.println("text message -----" + textMessage);
                 Map<String, Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));

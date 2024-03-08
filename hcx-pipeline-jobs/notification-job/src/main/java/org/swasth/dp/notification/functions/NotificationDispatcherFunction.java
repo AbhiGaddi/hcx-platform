@@ -117,6 +117,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
+        System.out.println("Template exists -----"  + templateExists(topicCode + ".ftl"));
         if (!templateExists(topicCode + ".ftl")) {
             message = ""; // Set message to empty if template doesn't exist
         }

@@ -107,13 +107,12 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         event.put("recipients", recipients);
         return event;
     }
-
     public String renderTemplate(String templateName, Map<String, Object> model) throws IOException, TemplateException {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
         StringWriter writer = new StringWriter();
         if (templateExists(templateName)) {
-            return ""; // Return empty string if template does not exist
+            return "";
         }
         Template template = cfg.getTemplate(templateName);
         template.process(model, writer);
@@ -122,7 +121,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
 
     private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
         if (templateExists(topicCode + ".ftl")) {
-            message = ""; // Set message to empty if template doesn't exist
+            message = "";
         }
         model.put("MESSAGE", message);
         return renderTemplate(topicCode + ".ftl", model);

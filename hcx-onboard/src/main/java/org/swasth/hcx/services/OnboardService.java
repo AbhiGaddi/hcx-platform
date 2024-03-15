@@ -858,7 +858,7 @@ public class OnboardService extends BaseController {
 
     private URL generateURL(Map<String, Object> participant, String type, String sub) throws NoSuchAlgorithmException, InvalidKeySpecException, MalformedURLException {
         String token = generateToken(sub, type, (String) participant.get(PARTICIPANT_NAME), (String) participant.get(PARTICIPANT_CODE));
-        String url = String.format("%s/ssp/verify?%s=%s&jwt_token=%s", hcxURL, type, sub, token);
+        String url = String.format("%s/onboarding/verify?%s=%s&jwt_token=%s", hcxURL, type, sub, token);
         return new URL(url);
     }
 

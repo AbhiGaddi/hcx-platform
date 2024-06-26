@@ -1,11 +1,15 @@
 package org.swasth.dp.core.util
 
-import java.io.{ByteArrayInputStream, IOException}
-import java.util
 
+import org.yaml.snakeyaml.Yaml
+
+import java.io.IOException
+import java.util
+import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.convert.ImplicitConversions.`collection asJava`
 class NotificationUtil {
 
-  var notifications: util.List[java.util.Map[String, AnyRef]] = null
+  var notifications: List[util.Map[String, AnyRef]] = null
 
   var topicCodes: util.List[String] = new util.ArrayList[String]()
 

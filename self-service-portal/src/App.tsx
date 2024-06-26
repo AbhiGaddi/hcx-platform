@@ -12,6 +12,8 @@ import UserList from './pages/Users/UsersList';
 import ParticipantList from './pages/Participants/ParticipantsList';
 import UsersInvite from './pages/Users/UsersInvite';
 import ResetPassword from './pages/Authentication/ResetPassword';
+import Terminology from './pages/Terminology';
+import AdminPayorApprove from './pages/AdminApprovePayors';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -30,33 +32,33 @@ function App() {
     <>
       <Routes>
         <Route 
-          path="/onboarding/login" 
+          path="/login" 
           element={<SignIn/>}
         >  
         </Route>
         <Route 
-          path="/onboarding/register" 
+          path="/register" 
           element={<SignUp/>}
         >    
         </Route>
         <Route 
-          path="/onboarding/resetpassword" 
+          path="/resetpassword" 
           element={<ResetPassword/>}
         >    
         </Route>
         <Route 
-          path="/onboarding/verify" 
+          path="/verify" 
           element={<CommunicationVerify/>}
         >
         </Route>
         <Route 
-          path="/onboarding/user/invite" 
+          path="/user/invite" 
           element={<UserVerify/>}
         >
         </Route>
         <Route element={<DefaultLayout />}>
           <Route
-            path="/onboarding/users"
+            path="/users"
             element={
               <>
                 <PageTitle title="Users" />
@@ -65,7 +67,7 @@ function App() {
             }
           />
           <Route
-            path="/onboarding/users/invite"
+            path="/users/invite"
             element={
               <>
                 <PageTitle title="Users" />
@@ -74,7 +76,7 @@ function App() {
             }
           />
            <Route
-            path="/onboarding/participants"
+            path="/participants"
             element={
               <>
                 <PageTitle title="Participants" />
@@ -83,7 +85,7 @@ function App() {
             }
           />
           <Route
-            path="/onboarding/profile"
+            path="/profile"
             element={
               <>
                 <PageTitle title="Swasth HCX Self Service Portal" />
@@ -91,10 +93,30 @@ function App() {
               </>
             }
           />
+          <Route
+            path="/terminology"
+            element={
+              <>
+                <PageTitle title="Terminology" />
+                <Terminology />
+              </>
+            }
+          />
+          <Route
+            path="/adminconsole"
+            element={
+              <>
+                <PageTitle title="Admin Console" />
+                <AdminPayorApprove/>
+              </>
+            }
+          />
         </Route>
+        
       </Routes>
     </>
   );
 }
 
 export default App;
+

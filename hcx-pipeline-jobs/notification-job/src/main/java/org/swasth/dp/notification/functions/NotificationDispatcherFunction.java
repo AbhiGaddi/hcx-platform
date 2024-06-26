@@ -1,5 +1,9 @@
 package org.swasth.dp.notification.functions;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -11,8 +15,10 @@ import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
 import scala.Option;
 
-import java.text.SimpleDateFormat;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
+
 
 public class NotificationDispatcherFunction extends BaseNotificationFunction {
 
@@ -23,17 +29,17 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     @Override
-    public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
-        Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
+    public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) throws Exception {
+        Map<String, Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
         List<Map<String, Object>> participantDetails = (List<Map<String, Object>>) inputEvent.get(Constants.PARTICIPANT_DETAILS());
-        notificationDispatcher(participantDetails, actualEvent);
+        notificationDispatcher(participantDetails, actualEvent, context);
     }
 
-    private void notificationDispatcher(List<Map<String, Object>> participantDetails, Map<String,Object> event) throws Exception {
+    private void notificationDispatcher(List<Map<String, Object>> participantDetails, Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context) throws Exception {
         int successfulDispatches = 0;
         int failedDispatches = 0;
         Long expiry = getProtocolLongValue(Constants.EXPIRY(), event);
-        for(Map<String,Object> participant: participantDetails) {
+        for (Map<String, Object> participant : participantDetails) {
             String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE());
             String endpointUrl = (String) participant.get(Constants.END_POINT());
             if (Constants.INVALID_STATUS().contains(participant.get(Constants.STATUS()))) {
@@ -44,12 +50,25 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
                 String payload = getPayload(event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
+                String email = (String) participant.getOrDefault("primary_email", "");
+                String userName = (String) participant.get("participant_name");
+                String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+                String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
+                String subject = config.getSubject(topicCode);
+                Map<String , Object > model = new HashMap<>();
+                model.put("USER_NAME",userName);
+                String textMessage = applyTemplateVars(topicCode, message, model);
+                Map<String, Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
+                if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
+                    context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
+                }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(result.error() != null ? result.error().get() : null)));
                 if(result.success()) successfulDispatches++; else failedDispatches++;
             }
         }
+
         int totalDispatches = successfulDispatches + failedDispatches;
         System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
         logger.debug("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
@@ -67,10 +86,38 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         return failedDispatches;
     }
 
-    private String getPayload(Map<String,Object> event) throws Exception {
+    private String getPayload(Map<String, Object> event) throws Exception {
         Map<String, Object> payload = new HashMap<>();
         payload.put(Constants.PAYLOAD(), event.get(Constants.PAYLOAD()));
         return JSONUtil.serialize(payload);
     }
 
+    public Map<String, Object> getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws Exception {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eid", "MESSAGE");
+        event.put("mid", UUID.randomUUID());
+        event.put("ets", System.currentTimeMillis());
+        event.put("channel", "email");
+        event.put("subject", subject);
+        event.put("message", message);
+        Map<String, Object> recipients = new HashMap<>();
+        recipients.put("to", to);
+        recipients.put("cc", cc);
+        recipients.put("bcc", bcc);
+        event.put("recipients", recipients);
+        return event;
+    }
+    public String renderTemplate(String templateName, Map<String, Object> model) throws IOException, TemplateException {
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
+        Template template = cfg.getTemplate(templateName);
+        StringWriter writer = new StringWriter();
+        template.process(model, writer);
+        return writer.toString();
+    }
+
+    private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
+        model.put("MESSAGE", message);
+        return renderTemplate(topicCode + ".ftl", model);
+    }
 }

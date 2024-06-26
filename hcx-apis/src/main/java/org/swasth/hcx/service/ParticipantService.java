@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.swasth.common.exception.*;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
+import org.swasth.common.validation.CertificateRevocation;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
@@ -32,6 +34,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
@@ -240,18 +243,30 @@ public class ParticipantService extends BaseRegistryService {
             } else {
                 x509Certificate = parseCertificateFromURL(certificate);
             }
-            // Validate Certificate Dates
-            x509Certificate.checkValidity();
+            if (!(x509Certificate.getNotAfter().getTime() > System.currentTimeMillis())) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The Certificate has expired. Please ensure the certificate is valid and not expired. Expiry Date: " + x509Certificate.getNotAfter());
+            }
             X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
-            String organizationName = certHolder.getSubject().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"))[0].getFirst().getValue().toString();
+            RDN[] issuerOrganizationRDNs = certHolder.getIssuer().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"));
+            String issuerOrganizationName = "";
+            if (issuerOrganizationRDNs != null && issuerOrganizationRDNs.length > 0) {
+                issuerOrganizationName = String.valueOf(issuerOrganizationRDNs[0].getFirst().getValue());
+            }
+            List<String> trustedCAListWithReplacedComma = trustedCAs.stream()
+                    .map(s -> s.replace("#COMMA#", ","))
+                    .collect(Collectors.toList());
             // Validate that the issuing certificate authority is in the trusted CA list
-            if (!trustedCAs.contains(organizationName)) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority should be trusted");
+            if (!trustedCAListWithReplacedComma.contains(issuerOrganizationName)) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority '" + issuerOrganizationName + "' is not trusted. Trusted certificate authorities: " + trustedCAListWithReplacedComma);
             }
             // Validate that the certificate key size is above 2048 bits
             int keySize = ((RSAPublicKey) x509Certificate.getPublicKey()).getModulus().bitLength();
             if (!allowedCertificateKeySize.contains(keySize)) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
+            }
+            CertificateRevocation cr = new CertificateRevocation(x509Certificate);
+            if (cr.checkStatus()) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
             }
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, e.getMessage());
@@ -278,5 +293,4 @@ public class ParticipantService extends BaseRegistryService {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "Error parsing certificate from the URL");
         }
     }
-
 }
